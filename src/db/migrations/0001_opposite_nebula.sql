@@ -1,0 +1,1 @@
+ALTER TABLE "models" ALTER COLUMN "brand_id" SET NOT NULL;

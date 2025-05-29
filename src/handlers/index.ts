@@ -1,0 +1,17 @@
+export { default as carsHandler } from './Cars.handler';
+export { default as usersHandler } from './Users.handler';
+export { default as rolesHandler } from './Roles.handler';
+export { default as boxesHandler } from './Boxes.handler';
+export { default as statusesHandler } from './Statuses.handler';
+export { default as clientsHandler } from './Clients.handler';
+export { default as suppliersHandler } from './Suppliers.handler';
+export { default as partsHandler } from './Parts.handler';
+export { default as workCategoriesHandler } from './WorkCategories.handler';
+export { default as workTypesHandler } from './WorkTypes.handler';
+export { default as worktypePartsHandler } from './WorkTypeParts.handler';
+export { default as clientsCarsHandler } from './ClientsCars.handler';
+export { default as modelsHandler } from './Models.handler';
+export { default as brandsHandler } from './Brands.handler';
+export { default as applicationsHandler } from './Applications.handler';
+export { default as worksHandler } from './Works.handler';
+export { default as partsWorksHandler } from './PartsWorks.handler';

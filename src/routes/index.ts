@@ -1,0 +1,17 @@
+export { default as carsRouter } from './Cars.router';
+export { default as usersRouter } from './Users.router';
+export { default as rolesRouter } from './Roles.router';
+export { default as boxesRouter } from './Boxes.router';
+export { default as statusesRouter } from './Statuses.router';
+export { default as clientsRouter } from './Clients.router';
+export { default as suppliersRouter } from './Suppliers.router';
+export { default as partsRouter } from './Parts.router';
+export { default as workCategoriesRouter } from './WorkCategories.router';
+export { default as workTypeRouter } from './WorkType.router';
+export { default as worktypePartsRouter } from './WorkTypeParts.router';
+export { default as clientsCarsRouter } from './ClientsCars.router';
+export { default as modelsRouter } from './Models.router';
+export { default as brandsRouter } from './Brands.router';
+export { default as applicationsRouter } from './Applications.router';
+export { default as worksRouter } from './Works.router';
+export { default as partsWorksRouter } from './PartsWorks.router';
