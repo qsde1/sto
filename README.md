@@ -1,29 +1,15 @@
 # Elysia with Bun runtime
 
-## Начало работы
-
-1. установить bun
-
-```
-powershell -c "irm bun.sh/install.ps1 | iex"
-```
-
-2. создать в корне проект .env фай с данными для кодключения к бд
-   пример:
-
-```env
-DB_USER=postgres
-DB_PASSWORD=1
-DB_NAME=sto
-DB_HOST=127.0.0.1
-DB_PORT=5432
-```
-
-3. создать бд в постгресс
-4. ввести в консоль:
-
+## Getting Started
+To get started with this template, simply paste this command into your terminal:
 ```bash
-bun i #установка зависимостей
-bun drizzle-kit migrate #миграции в бд
-bun run dev #запуск сервера в dev режиме
+bun create elysia ./elysia-example
 ```
+
+## Development
+To start the development server run:
+```bash
+bun run dev
+```
+
+Open http://localhost:3000/ with your browser to see the result.
