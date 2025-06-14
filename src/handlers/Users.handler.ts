@@ -1,54 +1,31 @@
 import type {
-    IUser,
     IUserCreateContext,
     IUserGetContext,
     IUserUpdateContext,
     IUserGetByLoginContext,
-    IUserGetByPhoneContext,
-    IUserGetByEmailContext,
 } from './types/Users.handler';
-import { db } from '../db/connect';
-import { roles, users } from '../db/schema';
-import { and, eq, not, or } from 'drizzle-orm';
 import { httpErrors } from '../services/httpErrors';
-import { hashPassword, comparePassword } from '../services/bcrypt'; // Предполагается существование сервиса
-import { password } from 'bun';
-import { IRole } from './types/Roles.handler';
+import { hashPassword } from '../services/bcrypt';
+import { UserModel, type IUserWithRole } from '../models/User.model';
+import { RoleModel } from '../models/Role.model';
 
 export default {
-    async getOne({ set, params }: IUserGetContext): Promise<IUser | { error: string }> {
-        const user = await db.query.users.findFirst({
-            where: eq(users.id, params.id),
-        });
-
-        if (!user) {
-            set.status = 404;
-            return httpErrors.users[404];
-        }
-
-        return user;
-    },
-    async getOneByLogin({ set, params }: IUserGetByLoginContext): Promise<IUser | { error: string }> {
-        const user = await db.query.users.findFirst({
-            where: eq(users.login, params.login),
-        });
-
-        if (!user) {
-            set.status = 404;
-            return httpErrors.users[404];
-        }
-
-        return user;
+    async getOne({ set, params }: IUserGetContext): Promise<IUserWithRole| null> {
+        return await UserModel.getById(params.id);
     },
 
-    async list(): Promise<IUser[]> {
-        return await db.query.users.findMany();
+    async getOneByLogin({ set, params }: IUserGetByLoginContext): Promise<IUserWithRole | null> {
+        return await UserModel.getByLogin(params.login);
     },
 
-    async create({ set, body }: IUserCreateContext): Promise<IUser | { error: string }> {
-        const existingUser = await db.query.users.findFirst({
-            where: or(eq(users.login, body.login), eq(users.email, body.email), eq(users.phone, body.phone)),
-        });
+    async list(): Promise<IUserWithRole[]> {
+        return await UserModel.getAll();
+    },
+
+    async create({ set, body }: IUserCreateContext): Promise<IUserWithRole | { error: string } | null> {
+        const existingUser = await UserModel.getByLogin(body.login) || 
+                           await UserModel.getByEmail(body.email) || 
+                           await UserModel.getByPhone(body.phone);
 
         if (existingUser) {
             set.status = 409;
@@ -57,44 +34,33 @@ export default {
 
         const hashedPassword = await hashPassword(body.password);
 
-        if (!(await checkIsRoleExist(body.roleId))) {
+        if (body.roleId && !(await RoleModel.getById(body.roleId))) {
             set.status = 404;
             return httpErrors.roles[404];
         }
-        const newUser = (
-            await db
-                .insert(users)
-                .values({
-                    ...body,
-                    password: hashedPassword,
-                })
-                .returning()
-        )[0];
 
-        return newUser;
+        return await UserModel.create({
+            ...body,
+            password: hashedPassword,
+        });
     },
 
-    async update({ set, body, params }: IUserUpdateContext): Promise<IUser | { error: string }> {
-        const user = await db.query.users.findFirst({
-            where: eq(users.id, params.id),
-        });
+    async update({ set, body, params }: IUserUpdateContext): Promise<IUserWithRole | { error: string } | null> {
+        const user = await UserModel.getById(params.id);
 
         if (!user) {
             set.status = 404;
             return httpErrors.users[404];
         }
 
-        const updateData: Partial<IUser> = {};
+        const updateData: Partial<typeof body> = {};
 
         if (body.password) {
             updateData.password = await hashPassword(body.password);
         }
 
         if (body.login && body.login !== user.login) {
-            const exist = await db.query.users.findFirst({
-                where: and(eq(users.login, body.login), not(eq(users.id, params.id))),
-            });
-
+            const exist = await UserModel.getByLogin(body.login);
             if (exist) {
                 set.status = 409;
                 return httpErrors.users[409];
@@ -103,10 +69,7 @@ export default {
         }
 
         if (body.email && body.email !== user.email) {
-            const exist = await db.query.users.findFirst({
-                where: and(eq(users.email, body.email), not(eq(users.id, params.id))),
-            });
-
+            const exist = await UserModel.getByEmail(body.email);
             if (exist) {
                 set.status = 409;
                 return httpErrors.users[409];
@@ -115,10 +78,7 @@ export default {
         }
 
         if (body.phone && body.phone !== user.phone) {
-            const exist = await db.query.users.findFirst({
-                where: and(eq(users.phone, body.phone), not(eq(users.id, params.id))),
-            });
-
+            const exist = await UserModel.getByPhone(body.phone);
             if (exist) {
                 set.status = 409;
                 return httpErrors.users[409];
@@ -127,10 +87,7 @@ export default {
         }
 
         if (body.roleId && body.roleId !== user.roleId) {
-            const role = await db.query.roles.findFirst({
-                where: eq(roles.id, body.roleId),
-            });
-
+            const role = await RoleModel.getById(body.roleId);
             if (!role) {
                 set.status = 404;
                 return httpErrors.roles[404];
@@ -139,30 +96,15 @@ export default {
         }
 
         if (Object.keys(updateData).length > 0) {
-            const [updatedUser] = await db.update(users).set(updateData).where(eq(users.id, params.id)).returning();
+            const updatedUser = await UserModel.update(params.id, updateData);
+          
             return updatedUser;
         }
 
         return user;
     },
 
-    async delete({ set, params }: IUserGetContext): Promise<IUser | { error: string }> {
-        const user = await db.query.users.findFirst({
-            where: eq(users.id, params.id),
-        });
-
-        if (!user) {
-            set.status = 404;
-            return httpErrors.users[404];
-        }
-
-        const [deletedUser] = await db.delete(users).where(eq(users.id, params.id)).returning();
-
-        return deletedUser;
+    async delete({ set, params }: IUserGetContext): Promise<IUserWithRole | null> {
+        return await UserModel.delete(params.id);
     },
 };
-
-async function checkIsRoleExist(roleId: IRole['id']) {
-    const role = await db.query.roles.findFirst({ where: eq(roles.id, roleId) });
-    return !!role;
-}

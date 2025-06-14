@@ -1,5 +1,5 @@
-import { worktypePartsHandler } from '../handlers';
 import Elysia, { t } from 'elysia';
+import { worktypePartsHandler } from '../handlers';
 import type { IWorktypePartCreateBody, IWorktypePartUpdateBody } from '../handlers/types/WorkTypePart.handler';
 import { validateBody } from '../services/bodyValidator';
 
@@ -27,7 +27,7 @@ export default new Elysia({ prefix: '/worktype-parts' })
             partId: t.Number(),
             quantity: t.Number(),
         }),
-        transform({ body }) {
+        beforeHandle: ({ body }) => {
             validateBody<IWorktypePartCreateBody>(body, ['worktypeId', 'partId', 'quantity']);
         },
     })
@@ -37,9 +37,9 @@ export default new Elysia({ prefix: '/worktype-parts' })
             partId: t.Number(),
         }),
         body: t.Object({
-            quantity: t.Optional(t.Number()),
+            quantity: t.Number(),
         }),
-        transform({ body }) {
+        beforeHandle: ({ body }) => {
             validateBody<IWorktypePartUpdateBody>(body, ['quantity']);
         },
     })

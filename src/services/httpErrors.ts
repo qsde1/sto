@@ -1,9 +1,8 @@
-import { workCategories } from '../db/schema';
 
 export const httpErrors = {
     cars: {
         404: { error: 'автомобиль не найден' },
-        409: { error: 'автомобиль с vin уже есть в базе' },
+        409: { error: 'автомобиль с такими данными уже есть в базе' },
     },
     users: {
         404: { error: 'пользователь не найден' },

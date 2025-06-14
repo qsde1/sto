@@ -5,29 +5,8 @@
     {
       "idx": 0,
       "version": "7",
-      "when": 1748293375958,
-      "tag": "0000_romantic_prodigy",
-      "breakpoints": true
-    },
-    {
-      "idx": 1,
-      "version": "7",
-      "when": 1748293493060,
-      "tag": "0001_opposite_nebula",
-      "breakpoints": true
-    },
-    {
-      "idx": 2,
-      "version": "7",
-      "when": 1748456536593,
-      "tag": "0002_silky_runaways",
-      "breakpoints": true
-    },
-    {
-      "idx": 3,
-      "version": "7",
-      "when": 1748548044779,
-      "tag": "0003_talented_gambit",
+      "when": 1749901173318,
+      "tag": "0000_zippy_wolfsbane",
       "breakpoints": true
     }
   ]

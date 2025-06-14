@@ -1,46 +1,30 @@
-import type { IRole, IRoleCreateContext, IRoleGetContext, IRoleUpdateContext } from './types/Roles.handler';
-import { db } from '../db/connect';
-import { roles } from '../db/schema';
-import { and, eq, not } from 'drizzle-orm';
+import type { IRoleCreateContext, IRoleGetContext, IRoleUpdateContext } from './types/Roles.handler';
 import { httpErrors } from '../services/httpErrors';
+import { RoleModel } from '../models/Role.model';
+import type { IRole } from '../models/Role.model';
 
 export default {
-    async getOne({ set, params }: IRoleGetContext): Promise<IRole | { error: string }> {
-        const role = await db.query.roles.findFirst({
-            where: eq(roles.id, params.id),
-        });
-
-        if (!role) {
-            set.status = 404;
-            return httpErrors.roles[404];
-        }
-
-        return role;
+    async getOne({ set, params }: IRoleGetContext): Promise<IRole | null> {
+        return await RoleModel.getById(params.id);
     },
 
     async list(): Promise<IRole[]> {
-        return await db.query.roles.findMany();
+        return await RoleModel.getAll();
     },
 
     async create({ set, body }: IRoleCreateContext): Promise<IRole | { error: string }> {
-        const existingRole = await db.query.roles.findFirst({
-            where: eq(roles.name, body.name),
-        });
+        const existingRole = await RoleModel.getByName(body.name);
 
         if (existingRole) {
             set.status = 409;
             return httpErrors.roles[409];
         }
 
-        const [newRole] = await db.insert(roles).values(body).returning();
-
-        return newRole;
+        return await RoleModel.create(body);
     },
 
-    async update({ set, body, params }: IRoleUpdateContext): Promise<IRole | { error: string }> {
-        const role = await db.query.roles.findFirst({
-            where: eq(roles.id, params.id),
-        });
+    async update({ set, body, params }: IRoleUpdateContext): Promise<IRole | { error: string } | null> {
+        const role = await RoleModel.getById(params.id);
 
         if (!role) {
             set.status = 404;
@@ -48,32 +32,28 @@ export default {
         }
 
         if (body.name && body.name !== role.name) {
-            const exist = await db.query.roles.findFirst({
-                where: and(eq(roles.name, body.name), not(eq(roles.id, params.id))),
-            });
-
+            const exist = await RoleModel.getByName(body.name);
             if (exist) {
                 set.status = 409;
                 return httpErrors.roles[409];
             }
         }
 
-        const [updatedRole] = await db.update(roles).set(body).where(eq(roles.id, params.id)).returning();
+        const updatedRole = await RoleModel.update(params.id, body);
+      
 
         return updatedRole;
     },
 
-    async delete({ set, params }: IRoleGetContext): Promise<IRole | { error: string }> {
-        const role = await db.query.roles.findFirst({
-            where: eq(roles.id, params.id),
-        });
+    async delete({ set, params }: IRoleGetContext): Promise<IRole | { error: string } | null> {
+        const role = await RoleModel.getById(params.id);
 
         if (!role) {
             set.status = 404;
             return httpErrors.roles[404];
         }
 
-        const [deletedRole] = await db.delete(roles).where(eq(roles.id, params.id)).returning();
+        const deletedRole = await RoleModel.delete(params.id);
 
         return deletedRole;
     },

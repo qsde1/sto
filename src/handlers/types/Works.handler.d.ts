@@ -1,26 +1,17 @@
 import { IHandler, IHandlerBody, IHandlerBodyParams, IHandlerParams } from './handlers';
+import type { IWork, CreateWorkDTO, UpdateWorkDTO } from '../../models';
 
-interface IWork {
-    id: number;
-    idApplication: number;
-    idUser: number;
-    idWorktype: number;
-    startDate: Date;
-    endDate: Date | null;
-    comments: string | null;
-}
+export type IWorkCreateBody = CreateWorkDTO;
+export type IWorkUpdateBody = UpdateWorkDTO;
 
-type IWorkCreateBody = Omit<IWork, 'id'>;
-type IWorkUpdateBody = Partial<Omit<IWorkCreateBody, 'idApplication' | 'idWorktype'>>;
+export type IWorkGetParams = Pick<IWork, 'id'>;
+export type IWorkGetByApplicationParams = Pick<IWork, 'idApplication'>;
+export type IWorkGetByUserParams = Pick<IWork, 'idUser'>;
+export type IWorkGetByWorktypeParams = Pick<IWork, 'idWorktype'>;
 
-type IWorkGetParams = Pick<IWork, 'id'>;
-type IWorkGetByApplicationParams = Pick<IWork, 'idApplication'>;
-type IWorkGetByUserParams = Pick<IWork, 'idUser'>;
-type IWorkGetByWorktypeParams = Pick<IWork, 'idWorktype'>;
-
-interface IWorkCreateContext extends IHandlerBody<IWorkCreateBody> {}
-interface IWorkGetContext extends IHandlerParams<IWorkGetParams> {}
-interface IWorkGetByApplicationContext extends IHandlerParams<IWorkGetByApplicationParams> {}
-interface IWorkGetByUserContext extends IHandlerParams<IWorkGetByUserParams> {}
-interface IWorkGetByWorktypeContext extends IHandlerParams<IWorkGetByWorktypeParams> {}
-interface IWorkUpdateContext extends IHandlerBodyParams<IWorkUpdateBody, Pick<IWork, 'id'>> {}
+export type IWorkCreateContext = IHandlerBody<IWorkCreateBody>;
+export type IWorkGetContext = IHandlerParams<IWorkGetParams>;
+export type IWorkGetByApplicationContext = IHandlerParams<IWorkGetByApplicationParams>;
+export type IWorkGetByUserContext = IHandlerParams<IWorkGetByUserParams>;
+export type IWorkGetByWorktypeContext = IHandlerParams<IWorkGetByWorktypeParams>;
+export type IWorkUpdateContext = IHandlerBodyParams<IWorkUpdateBody, Pick<IWork, 'id'>>;

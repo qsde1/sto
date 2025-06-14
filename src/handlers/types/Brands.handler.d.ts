@@ -1,16 +1,12 @@
-import { IHandler, IHandlerBody, IHandlerBodyParams, IHandlerParams } from './handlers';
+import type { IHandler, IHandlerBody, IHandlerBodyParams, IHandlerParams } from './handlers';
+import type { IBrand } from '../../models';
 
-interface IBrand {
-    id: number;
-    name: string;
-}
+export type IBrandGetParams = Pick<IBrand, 'id'>;
+export type IBrandGetByNameParams = Pick<IBrand, 'name'>;
+export type IBrandCreateBody = Pick<IBrand, 'name'>;
+export type IBrandUpdateBody = Partial<IBrandCreateBody>;
 
-type IBrandGetParams = Pick<IBrand, 'id'>;
-type IBrandGetByNameParams = Pick<IBrand, 'name'>;
-type IBrandCreateBody = Pick<IBrand, 'name'>;
-type IBrandUpdateBody = Partial<IBrandCreateBody>;
-
-interface IBrandCreateContext extends IHandlerBody<IBrandCreateBody> {}
-interface IBrandGetContext extends IHandlerParams<IBrandGetParams> {}
-interface IBrandGetByNameContext extends IHandlerParams<IBrandGetByNameParams> {}
-interface IBrandUpdateContext extends IHandlerBodyParams<IBrandUpdateBody, Pick<IBrand, 'id'>> {}
+export type IBrandCreateContext = IHandlerBody<IBrandCreateBody>;
+export type IBrandGetContext = IHandlerParams<IBrandGetParams>;
+export type IBrandGetByNameContext = IHandlerParams<IBrandGetByNameParams>;
+export type IBrandUpdateContext = IHandlerBodyParams<IBrandUpdateBody, Pick<IBrand, 'id'>>;

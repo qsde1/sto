@@ -1,119 +1,60 @@
 import type {
-    ISupplier,
     ISupplierCreateContext,
     ISupplierGetContext,
     ISupplierUpdateContext,
     ISupplierGetByNameContext,
 } from './types/Suppliers.handler';
-import { db } from '../db/connect';
-import { suppliers } from '../db/schema';
-import { eq, and, not } from 'drizzle-orm';
+import { SupplierModel, type ISupplier } from '../models';
 import { httpErrors } from '../services/httpErrors';
 
 export default {
     async list(): Promise<ISupplier[]> {
-        return await db.query.suppliers.findMany();
+        return await SupplierModel.getAll();
     },
 
-    async getOne({ set, params }: ISupplierGetContext): Promise<ISupplier | { error: string }> {
-        const supplier = await db.query.suppliers.findFirst({
-            where: eq(suppliers.id, params.id),
-        });
-
-        if (!supplier) {
-            set.status = 404;
-            return httpErrors.suppliers[404];
-        }
-
-        return supplier;
+    async getOne({ set, params }: ISupplierGetContext): Promise<ISupplier | null> {
+        return await SupplierModel.getById(params.id);
     },
 
-    async getByName({ set, params }: ISupplierGetByNameContext): Promise<ISupplier | { error: string }> {
-        const supplier = await db.query.suppliers.findFirst({
-            where: eq(suppliers.name, params.name),
-        });
-
-        if (!supplier) {
-            set.status = 404;
-            return httpErrors.suppliers[404];
-        }
-
-        return supplier;
+    async getByName({ set, params }: ISupplierGetByNameContext): Promise<ISupplier | null> {
+        return await SupplierModel.getByName(params.name);
     },
 
     async create({ set, body }: ISupplierCreateContext): Promise<ISupplier | { error: string }> {
-        const existingSupplier = await db.query.suppliers.findFirst({
-            where: eq(suppliers.name, body.name),
-        });
-
+        const existingSupplier = await SupplierModel.getByName(body.name);
         if (existingSupplier) {
             set.status = 409;
             return httpErrors.suppliers[409];
         }
 
-        const [newSupplier] = await db
-            .insert(suppliers)
-            .values({
-                name: body.name,
-                contacts: body.contacts ?? null,
-            })
-            .returning();
-
-        return newSupplier;
+        return await SupplierModel.create(body);
     },
 
     async update({ set, params, body }: ISupplierUpdateContext): Promise<ISupplier | { error: string }> {
-        const supplier = await db.query.suppliers.findFirst({
-            where: eq(suppliers.id, params.id),
-        });
-
+        const supplier = await SupplierModel.getById(params.id);
         if (!supplier) {
             set.status = 404;
             return httpErrors.suppliers[404];
         }
 
-        const updateData: Partial<ISupplier> = {};
-
         if (body.name && body.name !== supplier.name) {
-            const exist = await db.query.suppliers.findFirst({
-                where: eq(suppliers.name, body.name),
-            });
-
-            if (exist) {
+            const existingSupplier = await SupplierModel.getByName(body.name);
+            if (existingSupplier) {
                 set.status = 409;
                 return httpErrors.suppliers[409];
             }
-            updateData.name = body.name;
         }
 
-        if (body.contacts !== undefined) {
-            updateData.contacts = body.contacts;
+        const updatedSupplier = await SupplierModel.update(params.id, body);
+        if (!updatedSupplier) {
+            set.status = 409;
+            return httpErrors.suppliers[409];
         }
 
-        if (Object.keys(updateData).length > 0) {
-            const [updatedSupplier] = await db
-                .update(suppliers)
-                .set(updateData)
-                .where(eq(suppliers.id, params.id))
-                .returning();
-            return updatedSupplier;
-        }
-
-        return supplier;
+        return updatedSupplier;
     },
 
-    async delete({ set, params }: ISupplierGetContext): Promise<ISupplier | { error: string }> {
-        const supplier = await db.query.suppliers.findFirst({
-            where: eq(suppliers.id, params.id),
-        });
-
-        if (!supplier) {
-            set.status = 404;
-            return httpErrors.suppliers[404];
-        }
-
-        const [deletedSupplier] = await db.delete(suppliers).where(eq(suppliers.id, params.id)).returning();
-
-        return deletedSupplier;
+    async delete({ set, params }: ISupplierGetContext): Promise<ISupplier | { error: string } | null> {
+        return await SupplierModel.delete(params.id) ?? null;
     },
 };

@@ -1,5 +1,4 @@
 import type {
-    IWorkType,
     IWorkTypeCreateContext,
     IWorkTypeGetContext,
     IWorkTypeUpdateContext,
@@ -7,95 +6,53 @@ import type {
     IWorkTypeGetByCategoryContext,
     IWorkTypeWithCategory,
 } from './types/WorkTypes.handler';
-import { db } from '../db/connect';
-import { workTypes, workCategories } from '../db/schema';
-import { eq } from 'drizzle-orm';
+import { WorkTypeModel, WorkCategoryModel, IWorkType } from '../models';
 import { httpErrors } from '../services/httpErrors';
 
 export default {
     async list(): Promise<IWorkTypeWithCategory[]> {
-        return await db.query.workTypes.findMany({
-            with: { category: true },
-        });
+        return await WorkTypeModel.getAll();
     },
 
-    async getOne({ set, params }: IWorkTypeGetContext): Promise<IWorkType | { error: string }> {
-        const workType = await db.query.workTypes.findFirst({
-            where: eq(workTypes.id, params.id),
-            with: { category: true },
-        });
-
-        if (!workType) {
-            set.status = 404;
-            return httpErrors.workTypes[404];
-        }
-
-        return workType;
+    async getOne({ set, params }: IWorkTypeGetContext): Promise<IWorkTypeWithCategory | null> {
+        return await WorkTypeModel.getById(params.id) ?? null;
     },
 
-    async getByName({ set, params }: IWorkTypeGetByNameContext): Promise<IWorkTypeWithCategory | { error: string }> {
-        const workType = await db.query.workTypes.findFirst({
-            where: eq(workTypes.name, params.name),
-            with: { category: true },
-        });
-
-        if (!workType) {
-            set.status = 404;
-            return httpErrors.workTypes[404];
-        }
-
-        return workType;
+    async getByName({ set, params }: IWorkTypeGetByNameContext): Promise<IWorkTypeWithCategory | null> {
+        return await WorkTypeModel.getByName(params.name) ?? null;
     },
 
-    async getByCategory({
-        set,
-        params,
-    }: IWorkTypeGetByCategoryContext): Promise<IWorkTypeWithCategory[] | { error: string }> {
-        const category = await db.query.workCategories.findFirst({
-            where: eq(workCategories.id, params.categoryId),
-        });
-
-        if (!category) {
-            set.status = 404;
-            return httpErrors.workCategories[404];
-        }
-
-        return await db.query.workTypes.findMany({
-            where: eq(workTypes.categoryId, params.categoryId),
-            with: { category: true },
-        });
+    async getByCategory({ set, params }: IWorkTypeGetByCategoryContext): Promise<IWorkTypeWithCategory[] | null> {
+        return await WorkTypeModel.getByCategoryId(params.categoryId) ?? null;
     },
 
     async create({ set, body }: IWorkTypeCreateContext): Promise<IWorkType | { error: string }> {
         if (body.categoryId) {
-            const category = await db.query.workCategories.findFirst({
-                where: eq(workCategories.id, body.categoryId),
-            });
+            const category = await WorkCategoryModel.getById(body.categoryId);
             if (!category) {
                 set.status = 400;
                 return httpErrors.workCategories[404];
             }
         }
 
-        const [newWorkType] = await db.insert(workTypes).values(body).returning();
-
-        return newWorkType;
+        try {
+            const newWorkType = await WorkTypeModel.create(body);
+            return newWorkType;
+        } catch (e) {
+            set.status = 409;
+            return httpErrors.workTypes[409];
+        }
     },
 
     async update({ set, params, body }: IWorkTypeUpdateContext): Promise<IWorkType | { error: string }> {
-        const workType = await db.query.workTypes.findFirst({
-            where: eq(workTypes.id, params.id),
-        });
-
+        const workType = await WorkTypeModel.getById(params.id);
         if (!workType) {
             set.status = 404;
             return httpErrors.workTypes[404];
         }
 
         if (body.categoryId) {
-            const category = await db.query.workCategories.findFirst({
-                where: eq(workCategories.id, body.categoryId),
-            });
+            const category = await WorkCategoryModel.getById(body.categoryId);
             if (!category) {
                 set.status = 400;
                 return httpErrors.workCategories[404];
@@ -103,29 +60,31 @@ export default {
         }
 
         if (Object.keys(body).length > 0) {
-            const [updatedWorkType] = await db
-                .update(workTypes)
-                .set(body)
-                .where(eq(workTypes.id, params.id))
-                .returning();
-            return updatedWorkType;
+            try {
+                const updatedWorkType = await WorkTypeModel.update(params.id, body);
+                return updatedWorkType!;
+            } catch (e) {
+                set.status = 409;
+                return httpErrors.workTypes[409];
+            }
         }
 
         return workType;
     },
 
     async delete({ set, params }: IWorkTypeGetContext): Promise<IWorkType | { error: string }> {
-        const workType = await db.query.workTypes.findFirst({
-            where: eq(workTypes.id, params.id),
-        });
-
+        const workType = await WorkTypeModel.getById(params.id);
         if (!workType) {
             set.status = 404;
             return httpErrors.workTypes[404];
         }
 
-        const [deletedWorkType] = await db.delete(workTypes).where(eq(workTypes.id, params.id)).returning();
+        const success = await WorkTypeModel.delete(params.id);
+        if (!success) {
+            set.status = 409;
+            return httpErrors.workTypes[409];
+        }
 
-        return deletedWorkType;
+        return workType;
     },
 };

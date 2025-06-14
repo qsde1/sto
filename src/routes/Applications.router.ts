@@ -1,6 +1,6 @@
 import { applicationsHandler } from '../handlers';
 import Elysia, { t } from 'elysia';
-import { IApplicationCreateBody, IApplicationUpdateBody } from '../handlers/types/Applications.handler';
+import type { IApplicationCreateBody, IApplicationUpdateBody } from '../handlers/types/Applications.handler';
 import { validateBody } from '../services/bodyValidator';
 
 export default new Elysia({ prefix: '/applications' })

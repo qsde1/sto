@@ -1,5 +1,4 @@
 import { relations } from 'drizzle-orm';
-import { double } from 'drizzle-orm/mysql-core';
 
 import {
     integer,
@@ -9,13 +8,14 @@ import {
     serial,
     boolean,
     primaryKey,
-    timestamp,
+    bigint,
     text,
     numeric,
 } from 'drizzle-orm/pg-core';
+
 export const cars = pgTable('cars', {
     id: integer().primaryKey().generatedAlwaysAsIdentity(),
-    number: varchar({ length: 100 }).notNull(),
+    number: varchar({ length: 100 }).notNull().unique(),
     year: varchar({ length: 100 }).notNull(),
     volumeEngine: doublePrecision().notNull(),
     vin: varchar().notNull().unique(),
@@ -91,8 +91,8 @@ export const clientsCars = pgTable(
         clientId: integer('client_id')
             .notNull()
             .references(() => clients.id),
-        createdAt: timestamp('created_at').notNull().defaultNow(),
-        archivedAt: timestamp('archived_at'),
+        createdAt: bigint('created_at', { mode: 'number' }).notNull(),
+        archivedAt: bigint('archived_at', { mode: 'number' }),
     },
     (table) => [primaryKey({ columns: [table.clientId, table.carId] })]
 );
@@ -177,7 +177,7 @@ export const suppliersRelations = relations(suppliers, ({ many }) => ({
 
 export const applications = pgTable('applications', {
     id: serial('id').primaryKey(),
-    createdAt: timestamp('created_at').notNull().defaultNow(),
+    createdAt: bigint('created_at', { mode: 'number' }).notNull(),
     clientComment: text('client_comment'),
     idCar: integer('car_id')
         .notNull()
@@ -188,8 +188,8 @@ export const applications = pgTable('applications', {
     idUser: integer('user_id')
         .notNull()
         .references(() => users.id),
-    startDate: timestamp('start_date').notNull(),
-    closeDate: timestamp('close_date'),
+    startDate: bigint('start_date', { mode: 'number' }).notNull(),
+    closeDate: bigint('close_date', { mode: 'number' }),
     idBox: integer('box_id').references(() => boxes.id),
     price: numeric('price', { precision: 10, scale: 2 }),
 });
@@ -233,8 +233,8 @@ export const works = pgTable('works', {
     idWorktype: integer('worktype_id')
         .notNull()
         .references(() => workTypes.id),
-    startDate: timestamp('start_date').notNull(),
-    endDate: timestamp('end_date'),
+    startDate: bigint('start_date', { mode: 'number' }).notNull(),
+    endDate: bigint('end_date', { mode: 'number' }),
     comments: text('comments'),
 });
 

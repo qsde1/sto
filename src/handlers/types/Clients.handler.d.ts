@@ -1,22 +1,16 @@
-import { IHandler, IHandlerBody, IHandlerBodyParams, IHandlerParams } from './handlers';
+import type { IHandler, IHandlerBody, IHandlerBodyParams, IHandlerParams } from './handlers';
+import type { IClient } from '../../models';
 
-interface IClient {
-    id: number;
-    name: string;
-    phone: string;
-    email: string;
-}
+export type IClientCreateBody = Omit<IClient, 'id'>;
 
-type IClientCreateBody = Omit<IClient, 'id'>;
+export type IClientUpdateBody = Partial<IClientCreateBody>;
 
-type IClientUpdateBody = Partial<IClientCreateBody>;
+export type IClientGetParams = Pick<IClient, 'id'>;
+export type IClientGetByPhoneParams = Pick<IClient, 'phone'>;
+export type IClientGetByEmailParams = Pick<IClient, 'email'>;
 
-type IClientGetParams = Pick<IClient, 'id'>;
-type IClientGetByPhoneParams = Pick<IClient, 'phone'>;
-type IClientGetByEmailParams = Pick<IClient, 'email'>;
-
-interface IClientCreateContext extends IHandlerBody<IClientCreateBody> {}
-interface IClientGetContext extends IHandlerParams<IClientGetParams> {}
-interface IClientGetByPhoneContext extends IHandlerParams<IClientGetByPhoneParams> {}
-interface IClientGetByEmailContext extends IHandlerParams<IClientGetByEmailParams> {}
-interface IClientUpdateContext extends IHandlerBodyParams<IClientUpdateBody, IClientGetParams> {}
+export type IClientCreateContext = IHandlerBody<IClientCreateBody>;
+export type IClientGetContext = IHandlerParams<IClientGetParams>;
+export type IClientGetByPhoneContext = IHandlerParams<IClientGetByPhoneParams>;
+export type IClientGetByEmailContext = IHandlerParams<IClientGetByEmailParams>;
+export type IClientUpdateContext = IHandlerBodyParams<IClientUpdateBody, IClientGetParams>;

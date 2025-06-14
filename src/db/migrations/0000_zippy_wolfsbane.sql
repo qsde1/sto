@@ -1,12 +1,12 @@
 CREATE TABLE "applications" (
 	"id" serial PRIMARY KEY NOT NULL,
-	"created_at" timestamp DEFAULT now() NOT NULL,
+	"created_at" bigint NOT NULL,
 	"client_comment" text,
 	"car_id" integer NOT NULL,
 	"status_id" integer NOT NULL,
 	"user_id" integer NOT NULL,
-	"start_date" timestamp NOT NULL,
-	"close_date" timestamp,
+	"start_date" bigint NOT NULL,
+	"close_date" bigint,
 	"box_id" integer,
 	"price" numeric(10, 2)
 );
@@ -33,13 +33,14 @@ CREATE TABLE "cars" (
 	"color" varchar(100) NOT NULL,
 	"type" varchar(100) NOT NULL,
 	"model_id" integer NOT NULL,
+	CONSTRAINT "cars_number_unique" UNIQUE("number"),
 	CONSTRAINT "cars_vin_unique" UNIQUE("vin")
 );
 --> statement-breakpoint
 CREATE TABLE "clients" (
 	"id" serial PRIMARY KEY NOT NULL,
 	"name" varchar(100) NOT NULL,
-	"phone" varchar(20),
+	"phone" varchar(20) NOT NULL,
 	"email" varchar(100) NOT NULL,
 	CONSTRAINT "clients_email_unique" UNIQUE("email")
 );
@@ -47,21 +48,21 @@ CREATE TABLE "clients" (
 CREATE TABLE "clients_cars" (
 	"car_id" integer NOT NULL,
 	"client_id" integer NOT NULL,
-	"created_at" timestamp DEFAULT now() NOT NULL,
-	"archived_at" timestamp,
+	"created_at" bigint NOT NULL,
+	"archived_at" bigint,
 	CONSTRAINT "clients_cars_client_id_car_id_pk" PRIMARY KEY("client_id","car_id")
 );
 --> statement-breakpoint
 CREATE TABLE "models" (
 	"id" serial PRIMARY KEY NOT NULL,
 	"name" varchar(255) NOT NULL,
-	"brand_id" integer
+	"brand_id" integer NOT NULL
 );
 --> statement-breakpoint
 CREATE TABLE "parts" (
 	"id" serial PRIMARY KEY NOT NULL,
 	"name" varchar(100) NOT NULL,
-	"price" numeric(10, 2) NOT NULL,
+	"price" double precision NOT NULL,
 	"supplier_id" integer,
 	"manufacturer" varchar(100),
 	"quantity" integer DEFAULT 0 NOT NULL
@@ -113,8 +114,8 @@ CREATE TABLE "work_categories" (
 CREATE TABLE "work_types" (
 	"id" serial PRIMARY KEY NOT NULL,
 	"name" varchar(100) NOT NULL,
-	"price" numeric(10, 2) NOT NULL,
-	"category_id" integer
+	"price" double precision NOT NULL,
+	"category_id" integer NOT NULL
 );
 --> statement-breakpoint
 CREATE TABLE "works" (
@@ -122,8 +123,8 @@ CREATE TABLE "works" (
 	"application_id" integer NOT NULL,
 	"user_id" integer NOT NULL,
 	"worktype_id" integer NOT NULL,
-	"start_date" timestamp NOT NULL,
-	"end_date" timestamp,
+	"start_date" bigint NOT NULL,
+	"end_date" bigint,
 	"comments" text
 );
 --> statement-breakpoint

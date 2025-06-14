@@ -1,49 +1,28 @@
 import type {
-    IWorkCategory,
     IWorkCategoryCreateContext,
     IWorkCategoryGetContext,
     IWorkCategoryUpdateContext,
     IWorkCategoryGetByNameContext,
 } from './types/WorkCategories.handler';
-import { db } from '../db/connect';
-import { workCategories } from '../db/schema';
-import { eq } from 'drizzle-orm';
+import { IWorkCategory, WorkCategoryModel } from '../models';
 import { httpErrors } from '../services/httpErrors';
 
 export default {
-    async list(): Promise<IWorkCategory[]> {
-        return await db.query.workCategories.findMany();
+    async list() {
+        return await WorkCategoryModel.getAll();
     },
 
-    async getOne({ set, params }: IWorkCategoryGetContext): Promise<IWorkCategory | { error: string }> {
-        const category = await db.query.workCategories.findFirst({
-            where: eq(workCategories.id, params.id),
-        });
-
-        if (!category) {
-            set.status = 404;
-            return httpErrors.workCategories[404];
-        }
-
-        return category;
+    async getOne({ set, params }: IWorkCategoryGetContext): Promise<IWorkCategory | null> {
+        return await WorkCategoryModel.getById(params.id) ?? null;
     },
 
-    async getByName({ set, params }: IWorkCategoryGetByNameContext): Promise<IWorkCategory | { error: string }> {
-        const category = await db.query.workCategories.findFirst({
-            where: eq(workCategories.name, params.name),
-        });
-
-        if (!category) {
-            set.status = 404;
-            return httpErrors.workCategories[404];
-        }
-
-        return category;
+    async getByName({ set, params }: IWorkCategoryGetByNameContext): Promise<IWorkCategory | null> {
+        return await WorkCategoryModel.getByName(params.name) ?? null;
     },
 
     async create({ set, body }: IWorkCategoryCreateContext): Promise<IWorkCategory | { error: string }> {
         try {
-            const [newCategory] = await db.insert(workCategories).values(body).returning();
+            const newCategory = await WorkCategoryModel.create(body);
             return newCategory;
         } catch (e) {
             set.status = 409;
@@ -52,9 +31,7 @@ export default {
     },
 
     async update({ set, params, body }: IWorkCategoryUpdateContext): Promise<IWorkCategory | { error: string }> {
-        const category = await db.query.workCategories.findFirst({
-            where: eq(workCategories.id, params.id),
-        });
+        const category = await WorkCategoryModel.getById(params.id);
 
         if (!category) {
             set.status = 404;
@@ -62,29 +39,23 @@ export default {
         }
 
         try {
-            const [updatedCategory] = await db
-                .update(workCategories)
-                .set(body)
-                .where(eq(workCategories.id, params.id))
-                .returning();
-            return updatedCategory;
+            const updatedCategory = await WorkCategoryModel.update(params.id, body);
+            return updatedCategory!;
         } catch (e) {
             set.status = 409;
             return httpErrors.workCategories[409];
         }
     },
 
-    async delete({ set, params }: IWorkCategoryGetContext): Promise<IWorkCategory | { error: string }> {
-        const category = await db.query.workCategories.findFirst({
-            where: eq(workCategories.id, params.id),
-        });
+    async delete({ set, params }: IWorkCategoryGetContext) {
+        const category = await WorkCategoryModel.getById(params.id);
 
         if (!category) {
             set.status = 404;
             return httpErrors.workCategories[404];
         }
 
-        const [deletedCategory] = await db.delete(workCategories).where(eq(workCategories.id, params.id)).returning();
+        const deletedCategory = await WorkCategoryModel.delete(params.id);
 
         return deletedCategory;
     },

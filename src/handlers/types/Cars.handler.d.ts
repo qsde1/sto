@@ -1,25 +1,13 @@
-import { IHandler, IHandlerBody, IHandlerBodyParams, IHandlerParams } from './handlers';
-import type { IModel } from './Models.handler';
+import type { IHandler, IHandlerBody, IHandlerBodyParams, IHandlerParams } from './handlers';
+import type { ICar, IModel, CreateCarDTO } from '../../models';
 
-interface ICar {
-    id: number;
-    number: string;
-    year: string;
-    volumeEngine: number;
-    vin: string;
-    color: string;
-    type: string;
-    modelId: IModel['id'];
-}
 
-type ICarCreateBody = Omit<ICar, 'id' | 'volumeEngine' | 'type' | 'year' | 'modelId'>;
+export type ICarCreateContext = IHandlerBody<CreateCarDTO>;
 
-interface ICarCreateContext extends IHandlerBody<ICarCreateBody> {}
+export type ICarGetParams = Pick<ICar, 'id'>;
 
-type ICarGetParams = Pick<ICar, 'id'>;
+export type ICarGetParamsContext = IHandlerParams<ICarGetParams>;
 
-interface ICarGetParamsContext extends IHandlerParams<ICarGetParams> {}
+export type ICarUpdateBody = Partial<CreateCarDTO & { modelId: IModel['id'] }>;
 
-type ICarUpdateBody = Partial<ICarCreateBody & { modelId: ICar['modelId'] }>;
-
-interface ICarUpdateContext extends IHandlerBodyParams<ICarUpdateBody, ICarGetParams> {}
+export type ICarUpdateContext = IHandlerBodyParams<ICarUpdateBody, ICarGetParams>;

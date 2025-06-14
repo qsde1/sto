@@ -1,123 +1,68 @@
 import type {
-    IPart,
     IPartCreateContext,
     IPartGetContext,
     IPartUpdateContext,
     IPartGetByNameContext,
     IPartGetBySupplierContext,
-    IPartWithSuppliers,
 } from './types/Parts.handler';
-import { db } from '../db/connect';
-import { parts, suppliers } from '../db/schema';
-import { eq, and, not } from 'drizzle-orm';
+import { IPart, PartModel, type IPartWithSupplier } from '../models/index';
 import { httpErrors } from '../services/httpErrors';
 
 export default {
-    async list(): Promise<IPartWithSuppliers[]> {
-        return await db.query.parts.findMany({
-            with: { supplier: true },
-        });
+    async list(): Promise<IPartWithSupplier[]> {
+        return await PartModel.getAll();
     },
 
-    async getOne({ set, params }: IPartGetContext): Promise<IPart | { error: string }> {
-        const part = await db.query.parts.findFirst({
-            where: eq(parts.id, params.id),
-            with: { supplier: true },
-        });
-
-        if (!part) {
-            set.status = 404;
-            return httpErrors.parts[404];
-        }
-
-        return part;
+    async getOne({ set, params }: IPartGetContext): Promise<IPartWithSupplier | null> {
+        return await PartModel.getById(params.id);
     },
 
-    async getByName({ set, params }: IPartGetByNameContext): Promise<IPart | { error: string }> {
-        const part = await db.query.parts.findFirst({
-            where: eq(parts.name, params.name),
-            with: { supplier: true },
-        });
-
-        if (!part) {
-            set.status = 404;
-            return httpErrors.parts[404];
-        }
-
-        return part;
+    async getByName({ set, params }: IPartGetByNameContext): Promise<IPartWithSupplier | null> {
+        return await PartModel.getByName(params.name);
     },
 
-    async getBySupplier({ set, params }: IPartGetBySupplierContext): Promise<IPart[] | { error: string }> {
-        const supplier = await db.query.suppliers.findFirst({
-            where: eq(suppliers.id, params.idSuppliers!),
-        });
-
-        if (!supplier) {
-            set.status = 404;
-            return httpErrors.suppliers[404];
-        }
-
-        return await db.query.parts.findMany({
-            where: eq(parts.idSuppliers, params.idSuppliers!),
-        });
+    async getBySupplier({ set, params }: IPartGetBySupplierContext): Promise<IPartWithSupplier[] | null> {
+        return await PartModel.getBySupplierId(params.idSuppliers!) ?? null;
     },
 
-    async create({ set, body }: IPartCreateContext): Promise<IPart | { error: string }> {
+    async create({ set, body }: IPartCreateContext): Promise<IPartWithSupplier | { error: string } | null> {
         if (body.idSuppliers) {
-            const supplier = await db.query.suppliers.findFirst({
-                where: eq(suppliers.id, body.idSuppliers),
-            });
+            const supplier = await PartModel.getBySupplierId(body.idSuppliers);
             if (!supplier) {
                 set.status = 404;
                 return httpErrors.suppliers[404];
             }
         }
 
-        const [newPart] = await db.insert(parts).values(body).returning();
-
-        return newPart;
+        const newPart = await PartModel.create(body);
+        return await PartModel.getById(newPart.id);
     },
 
-    async update({ set, params, body }: IPartUpdateContext): Promise<IPart | { error: string }> {
-        const part = await db.query.parts.findFirst({
-            where: eq(parts.id, params.id),
-        });
-
+    async update({ set, params, body }: IPartUpdateContext): Promise<IPartWithSupplier | { error: string } | null> {
+        const part = await PartModel.getById(params.id);
         if (!part) {
             set.status = 404;
             return httpErrors.parts[404];
         }
 
         if (body.idSuppliers) {
-            const supplier = await db.query.suppliers.findFirst({
-                where: eq(suppliers.id, body.idSuppliers),
-            });
+            const supplier = await PartModel.getBySupplierId(body.idSuppliers);
             if (!supplier) {
                 set.status = 404;
                 return httpErrors.suppliers[404];
             }
         }
 
-        if (Object.keys(body).length > 0) {
-            const [updatedPart] = await db.update(parts).set(body).where(eq(parts.id, params.id)).returning();
-            return updatedPart;
+        const updatedPart = await PartModel.update(params.id, body);
+        if (!updatedPart) {
+            set.status = 409;
+            return httpErrors.parts[409];
         }
 
-        return part;
+        return await PartModel.getById(params.id);
     },
 
-    async delete({ set, params }: IPartGetContext): Promise<IPart | { error: string }> {
-        const part = await db.query.parts.findFirst({
-            where: eq(parts.id, params.id),
-        });
-
-        if (!part) {
-            set.status = 404;
-            return httpErrors.parts[404];
-        }
-
-        const [deletedPart] = await db.delete(parts).where(eq(parts.id, params.id)).returning();
-
-        return deletedPart;
+    async delete({ set, params }: IPartGetContext): Promise<IPart | { error: string } | null> {
+        return await PartModel.delete(params.id);
     },
 };

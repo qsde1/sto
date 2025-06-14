@@ -2,26 +2,26 @@ import { IHandler, IHandlerBody, IHandlerBodyParams, IHandlerParams } from './ha
 import { IPart } from './Parts.handler';
 import { IWorkType } from './WorkTypes.handler';
 
-interface IWorktypePart {
+export type IWorktypePart = {
     worktypeId: number;
     partId: number;
     quantity: number;
-}
+};
 
-interface IWorktypePartWithPartAndWorkType extends IWorktypePart {
+export type IWorktypePartWithPartAndWorkType = IWorktypePart & {
     part: IPart;
     workType: IWorkType;
-}
+};
 
-type IWorktypePartCreateBody = Omit<IWorktypePart, never>;
-type IWorktypePartUpdateBody = Partial<Pick<IWorktypePart, 'quantity'>>;
+export type IWorktypePartCreateBody = Omit<IWorktypePart, never>;
+export type IWorktypePartUpdateBody = Partial<Pick<IWorktypePart, 'quantity'>>;
 
-type IWorktypePartGetParams = Pick<IWorktypePart, 'worktypeId' | 'partId'>;
-type IWorktypePartGetByWorktypeParams = Pick<IWorktypePart, 'worktypeId'>;
-type IWorktypePartGetByPartParams = Pick<IWorktypePart, 'partId'>;
+export type IWorktypePartGetParams = Pick<IWorktypePart, 'worktypeId' | 'partId'>;
+export type IWorktypePartGetByWorktypeParams = Pick<IWorktypePart, 'worktypeId'>;
+export type IWorktypePartGetByPartParams = Pick<IWorktypePart, 'partId'>;
 
-interface IWorktypePartCreateContext extends IHandlerBody<IWorktypePartCreateBody> {}
-interface IWorktypePartGetContext extends IHandlerParams<IWorktypePartGetParams> {}
-interface IWorktypePartGetByWorktypeContext extends IHandlerParams<IWorktypePartGetByWorktypeParams> {}
-interface IWorktypePartGetByPartContext extends IHandlerParams<IWorktypePartGetByPartParams> {}
-interface IWorktypePartUpdateContext extends IHandlerBodyParams<IWorktypePartUpdateBody, IWorktypePartGetParams> {}
+export type IWorktypePartCreateContext = IHandlerBody<IWorktypePartCreateBody>;
+export type IWorktypePartGetContext = IHandlerParams<IWorktypePartGetParams>;
+export type IWorktypePartGetByWorktypeContext = IHandlerParams<IWorktypePartGetByWorktypeParams>;
+export type IWorktypePartGetByPartContext = IHandlerParams<IWorktypePartGetByPartParams>;
+export type IWorktypePartUpdateContext = IHandlerBodyParams<IWorktypePartUpdateBody, IWorktypePartGetParams>;

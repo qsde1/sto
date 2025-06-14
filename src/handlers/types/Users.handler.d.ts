@@ -1,30 +1,20 @@
 import { IHandler, IHandlerBody, IHandlerBodyParams, IHandlerParams } from './handlers';
-import type { IRole } from './Roles.types';
+import type { IUser, IUserWithRole, IRole } from '../../models';
 
-interface IUser {
-    id: number;
-    name: string;
-    login: string;
-    password: string;
-    email: string;
-    phone: string;
-    roleId: IRole['id'] | null;
-}
+export type IUserCreateBody = Omit<IUserWithRole, 'id'>;
 
-type IUserCreateBody = Omit<IUser, 'id'>;
+export type IUserCreateContext = IHandlerBody<IUserCreateBody>;
 
-interface IUserCreateContext extends IHandlerBody<IUserCreateBody> {}
+export type IUserGetParams = Pick<IUserWithRole, 'id'>;
+export type IUserGetByLoginParams = Pick<IUserWithRole, 'login'>;
+export type IUserGetByEmailParams = Pick<IUserWithRole, 'email'>;
+export type IUserGetByPhoneParams = Pick<IUserWithRole, 'phone'>;
 
-type IUserGetParams = Pick<IUser, 'id'>;
-type IUserGetByLoginParams = Pick<IUser, 'login'>;
-type IUserGetByEmailParams = Pick<IUser, 'email'>;
-type IUserGetByPhoneParams = Pick<IUser, 'phone'>;
+export type IUserGetContext = IHandlerParams<IUserGetParams>;
+export type IUserGetByLoginContext = IHandlerParams<IUserGetByLoginParams>;
+export type IUserGetByEmailContext = IHandlerParams<IUserGetByEmailParams>;
+export type IUserGetByPhoneContext = IHandlerParams<IUserGetByPhoneParams>;
 
-interface IUserGetContext extends IHandlerParams<IUserGetParams> {}
-interface IUserGetByLoginContext extends IHandlerParams<IUserGetByLoginParams> {}
-interface IUserGetByEmailContext extends IHandlerParams<IUserGetByEmailParams> {}
-interface IUserGetByPhoneContext extends IHandlerParams<IUserGetByPhoneParams> {}
+export type IUserUpdateBody = Partial<Omit<IUserWithRole, 'id'>>;
 
-type IUserUpdateBody = Partial<Omit<IUser, 'id'>>;
-
-interface IUserUpdateContext extends IHandlerBodyParams<IUserUpdateBody, Pick<IUser, 'id'>> {}
+export type IUserUpdateContext = IHandlerBodyParams<IUserUpdateBody, Pick<IUserWithRole, 'id'>>;

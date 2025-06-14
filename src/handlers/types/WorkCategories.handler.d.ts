@@ -1,17 +1,13 @@
 import { IHandler, IHandlerBody, IHandlerBodyParams, IHandlerParams } from './handlers';
+import type { IWorkCategory, CreateWorkCategoryDTO, UpdateWorkCategoryDTO } from '../../models';
 
-interface IWorkCategory {
-    id: number;
-    name: string;
-}
+export type IWorkCategoryCreateBody = CreateWorkCategoryDTO;
+export type IWorkCategoryUpdateBody = UpdateWorkCategoryDTO;
 
-type IWorkCategoryCreateBody = Omit<IWorkCategory, 'id'>;
-type IWorkCategoryUpdateBody = Partial<IWorkCategoryCreateBody>;
+export type IWorkCategoryGetParams = Pick<IWorkCategory, 'id'>;
+export type IWorkCategoryGetByNameParams = Pick<IWorkCategory, 'name'>;
 
-type IWorkCategoryGetParams = Pick<IWorkCategory, 'id'>;
-type IWorkCategoryGetByNameParams = Pick<IWorkCategory, 'name'>;
-
-interface IWorkCategoryCreateContext extends IHandlerBody<IWorkCategoryCreateBody> {}
-interface IWorkCategoryGetContext extends IHandlerParams<IWorkCategoryGetParams> {}
-interface IWorkCategoryGetByNameContext extends IHandlerParams<IWorkCategoryGetByNameParams> {}
-interface IWorkCategoryUpdateContext extends IHandlerBodyParams<IWorkCategoryUpdateBody, Pick<IWorkCategory, 'id'>> {}
+export type IWorkCategoryCreateContext = IHandlerBody<IWorkCategoryCreateBody>;
+export type IWorkCategoryGetContext = IHandlerParams<IWorkCategoryGetParams>;
+export type IWorkCategoryGetByNameContext = IHandlerParams<IWorkCategoryGetByNameParams>;
+export type IWorkCategoryUpdateContext = IHandlerBodyParams<IWorkCategoryUpdateBody, Pick<IWorkCategory, 'id'>>;

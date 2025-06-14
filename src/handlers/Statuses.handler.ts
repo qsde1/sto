@@ -4,6 +4,8 @@ import { statuses } from '../db/schema';
 import { eq } from 'drizzle-orm';
 import { httpErrors } from '../services/httpErrors';
 
+const DONE_STATUS = 'Закрыта';
+
 export default {
     async getOne({ set, params }: IStatusGetContext): Promise<IStatus | { error: string }> {
         const status = await db.query.statuses.findFirst({
@@ -76,5 +78,12 @@ export default {
         const [deletedStatus] = await db.delete(statuses).where(eq(statuses.id, params.id)).returning();
 
         return deletedStatus;
+    },
+
+    async getDoneStatus() {
+        const status = await db.query.statuses.findFirst({
+            where: eq(statuses.name, DONE_STATUS),
+        });
+        return status;
     },
 };

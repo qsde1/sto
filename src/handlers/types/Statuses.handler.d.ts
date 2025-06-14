@@ -1,18 +1,14 @@
 import { IHandler, IHandlerBody, IHandlerBodyParams, IHandlerParams } from './handlers';
+import type { IStatus } from '../../models';
 
-interface IStatus {
-    id: number;
-    name: string;
-}
+export type IStatusCreateBody = Omit<IStatus, 'id'>;
 
-type IStatusCreateBody = Omit<IStatus, 'id'>;
+export type IStatusCreateContext = IHandlerBody<IStatusCreateBody>;
 
-interface IStatusCreateContext extends IHandlerBody<IStatusCreateBody> {}
+export type IStatusGetParams = Pick<IStatus, 'id'>;
 
-type IStatusGetParams = Pick<IStatus, 'id'>;
+export type IStatusGetContext = IHandlerParams<IStatusGetParams>;
 
-interface IStatusGetContext extends IHandlerParams<IStatusGetParams> {}
+export type IStatusUpdateBody = Partial<IStatusCreateBody>;
 
-type IStatusUpdateBody = Partial<IStatusCreateBody>;
-
-interface IStatusUpdateContext extends IHandlerBodyParams<IStatusUpdateBody, IStatusGetParams> {}
+export type IStatusUpdateContext = IHandlerBodyParams<IStatusUpdateBody, IStatusGetParams>;

@@ -1,18 +1,14 @@
 import { IHandler, IHandlerBody, IHandlerBodyParams, IHandlerParams } from './handlers';
+import type { IRole } from '../../models';
 
-interface IRole {
-    id: number;
-    name: string;
-}
+export type IRoleCreateBody = Omit<IRole, 'id'>;
 
-type IRoleCreateBody = Omit<IRole, 'id'>;
+export type IRoleCreateContext = IHandlerBody<IRoleCreateBody>;
 
-interface IRoleCreateContext extends IHandlerBody<IRoleCreateBody> {}
+export type IRoleGetParams = Pick<IRole, 'id'>;
 
-type IRoleGetParams = Pick<IRole, 'id'>;
+export type IRoleGetContext = IHandlerParams<IRoleGetParams>;
 
-interface IRoleGetContext extends IHandlerParams<IRoleGetParams> {}
+export type IRoleUpdateBody = Partial<IRoleCreateBody>;
 
-type IRoleUpdateBody = Partial<IRoleCreateBody>;
-
-interface IRoleUpdateContext extends IHandlerBodyParams<IRoleUpdateBody, IRoleGetParams> {}
+export type IRoleUpdateContext = IHandlerBodyParams<IRoleUpdateBody, IRoleGetParams>;

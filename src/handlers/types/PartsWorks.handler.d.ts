@@ -1,20 +1,15 @@
-import { IHandler, IHandlerBody, IHandlerBodyParams, IHandlerParams } from './handlers';
+import type { IHandler, IHandlerBody, IHandlerBodyParams, IHandlerParams } from './handlers';
+import type { IPartsWork } from '../../models';
 
-interface IPartWork {
-    workId: number;
-    partId: number;
-    quantity: number;
-}
+export type IPartWorkCreateBody = Omit<IPartsWork, 'id'>;
+export type IPartWorkUpdateBody = Partial<Pick<IPartsWork, 'quantity'>>;
 
-type IPartWorkCreateBody = Omit<IPartWork, never>;
-type IPartWorkUpdateBody = Partial<Pick<IPartWork, 'quantity'>>;
+export type IPartWorkGetParams = Pick<IPartsWork, 'workId' | 'partId'>;
+export type IPartWorkGetByWorkParams = Pick<IPartsWork, 'workId'>;
+export type IPartWorkGetByPartParams = Pick<IPartsWork, 'partId'>;
 
-type IPartWorkGetParams = Pick<IPartWork, 'workId' | 'partId'>;
-type IPartWorkGetByWorkParams = Pick<IPartWork, 'workId'>;
-type IPartWorkGetByPartParams = Pick<IPartWork, 'partId'>;
-
-interface IPartWorkCreateContext extends IHandlerBody<IPartWorkCreateBody> {}
-interface IPartWorkGetContext extends IHandlerParams<IPartWorkGetParams> {}
-interface IPartWorkGetByWorkContext extends IHandlerParams<IPartWorkGetByWorkParams> {}
-interface IPartWorkGetByPartContext extends IHandlerParams<IPartWorkGetByPartParams> {}
-interface IPartWorkUpdateContext extends IHandlerBodyParams<IPartWorkUpdateBody, IPartWorkGetParams> {}
+export type IPartWorkCreateContext = IHandlerBody<IPartWorkCreateBody>;
+export type IPartWorkGetContext = IHandlerParams<IPartWorkGetParams>;
+export type IPartWorkGetByWorkContext = IHandlerParams<IPartWorkGetByWorkParams>;
+export type IPartWorkGetByPartContext = IHandlerParams<IPartWorkGetByPartParams>;
+export type IPartWorkUpdateContext = IHandlerBodyParams<IPartWorkUpdateBody, IPartWorkGetParams>;

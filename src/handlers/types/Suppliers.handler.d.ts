@@ -1,19 +1,14 @@
 import { IHandler, IHandlerBody, IHandlerBodyParams, IHandlerParams } from './handlers';
+import type { ISupplier } from '../../models';
 
-interface ISupplier {
-    id: number;
-    name: string;
-    contacts: string | null;
-}
+export type ISupplierCreateBody = Omit<ISupplier, 'id'>;
 
-type ISupplierCreateBody = Omit<ISupplier, 'id'>;
+export type ISupplierUpdateBody = Partial<ISupplierCreateBody>;
 
-type ISupplierUpdateBody = Partial<ISupplierCreateBody>;
+export type ISupplierGetParams = Pick<ISupplier, 'id'>;
+export type ISupplierGetByNameParams = Pick<ISupplier, 'name'>;
 
-type ISupplierGetParams = Pick<ISupplier, 'id'>;
-type ISupplierGetByNameParams = Pick<ISupplier, 'name'>;
-
-interface ISupplierCreateContext extends IHandlerBody<ISupplierCreateBody> {}
-interface ISupplierGetContext extends IHandlerParams<ISupplierGetParams> {}
-interface ISupplierGetByNameContext extends IHandlerParams<ISupplierGetByNameParams> {}
-interface ISupplierUpdateContext extends IHandlerBodyParams<ISupplierUpdateBody, Pick<ISupplier, 'id'>> {}
+export type ISupplierCreateContext = IHandlerBody<ISupplierCreateBody>;
+export type ISupplierGetContext = IHandlerParams<ISupplierGetParams>;
+export type ISupplierGetByNameContext = IHandlerParams<ISupplierGetByNameParams>;
+export type ISupplierUpdateContext = IHandlerBodyParams<ISupplierUpdateBody, Pick<ISupplier, 'id'>>;

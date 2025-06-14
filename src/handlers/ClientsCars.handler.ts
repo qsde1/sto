@@ -1,144 +1,43 @@
 import type {
-    IClientCar,
     IClientCarCreateContext,
     IClientCarGetContext,
     IClientCarUpdateContext,
     IClientCarGetByClientContext,
     IClientCarGetByCarContext,
-    IClientCarWithClientAndCar,
 } from './types/ClientsCars.handler';
-import { db } from '../db/connect';
-import { clientsCars, clients, cars } from '../db/schema';
-import { and, eq, isNull } from 'drizzle-orm';
-import { httpErrors } from '../services/httpErrors';
+import type { IClientCar } from '../models';
+import { ClientCarModel } from '../models';
 
 export default {
-    async list(): Promise<IClientCarWithClientAndCar[]> {
-        return await db.query.clientsCars.findMany({
-            with: {
-                client: true,
-                car: true,
-            },
-        });
+    async list(): Promise<IClientCar[]> {
+        return await ClientCarModel.getAll();
     },
 
-    async getOne({ set, params }: IClientCarGetContext): Promise<IClientCar | { error: string }> {
-        const relation = await db.query.clientsCars.findFirst({
-            where: and(eq(clientsCars.clientId, params.clientId), eq(clientsCars.carId, params.carId)),
-            with: {
-                client: true,
-                car: true,
-            },
-        });
-
-        if (!relation) {
-            set.status = 404;
-            return httpErrors.clientsCars[404];
-        }
-
-        return relation;
+    async getOne({ params }: IClientCarGetContext): Promise<IClientCar | undefined> {
+        return await ClientCarModel.getByClientAndCar(params.clientId, params.carId);
     },
 
-    async getByClient({ set, params }: IClientCarGetByClientContext): Promise<IClientCar[] | { error: string }> {
-        const client = await db.query.clients.findFirst({
-            where: eq(clients.id, params.clientId),
-        });
-
-        if (!client) {
-            set.status = 404;
-            return httpErrors.clients[404];
-        }
-
-        return await db.query.clientsCars.findMany({
-            where: and(eq(clientsCars.clientId, params.clientId), isNull(clientsCars.archivedAt)),
-            with: { car: true },
-        });
+    async getByClient({ params }: IClientCarGetByClientContext): Promise<IClientCar[]> {
+        return await ClientCarModel.getByClient(params.clientId);
     },
 
-    async getByCar({ set, params }: IClientCarGetByCarContext): Promise<IClientCar[] | { error: string }> {
-        const car = await db.query.cars.findFirst({
-            where: eq(cars.id, params.carId),
-        });
-
-        if (!car) {
-            set.status = 404;
-            return httpErrors.cars[404];
-        }
-
-        return await db.query.clientsCars.findMany({
-            where: and(eq(clientsCars.carId, params.carId), isNull(clientsCars.archivedAt)),
-            with: { client: true },
-        });
+    async getByCar({ params }: IClientCarGetByCarContext): Promise<IClientCar[]> {
+        return await ClientCarModel.getByCar(params.carId);
     },
 
-    async create({ set, body }: IClientCarCreateContext): Promise<IClientCar | { error: string }> {
-        const client = await db.query.clients.findFirst({
-            where: eq(clients.id, body.clientId),
-        });
-        if (!client) {
-            set.status = 404;
-            return httpErrors.clients[404];
-        }
-
-        const car = await db.query.cars.findFirst({
-            where: eq(cars.id, body.carId),
-        });
-        if (!car) {
-            set.status = 404;
-            return httpErrors.cars[404];
-        }
-
-        try {
-            const [newRelation] = await db.insert(clientsCars).values(body).returning();
-            return newRelation;
-        } catch (e) {
-            set.status = 409;
-            return httpErrors.clientsCars[409];
-        }
+    async create({ body }: IClientCarCreateContext): Promise<IClientCar> {
+        return await ClientCarModel.create(body);
     },
 
-    async update({ set, params, body }: IClientCarUpdateContext): Promise<IClientCar | { error: string }> {
-        const relation = await db.query.clientsCars.findFirst({
-            where: and(eq(clientsCars.clientId, params.clientId), eq(clientsCars.carId, params.carId)),
-        });
-
-        if (!relation) {
-            set.status = 404;
-            return httpErrors.clientsCars[404];
-        }
-
-        const updateData: Partial<IClientCar> = {};
-        if (body.archivedAt !== undefined) {
-            updateData.archivedAt = body.archivedAt ? new Date(body.archivedAt) : null;
-        }
-
-        if (Object.keys(updateData).length > 0) {
-            const [updatedRelation] = await db
-                .update(clientsCars)
-                .set(updateData)
-                .where(and(eq(clientsCars.clientId, params.clientId), eq(clientsCars.carId, params.carId)))
-                .returning();
-            return updatedRelation;
-        }
-
-        return relation;
+    async update({ params, body }: IClientCarUpdateContext): Promise<IClientCar | null> {
+        return await ClientCarModel.update(params.clientId, params.carId, body);
     },
 
-    async delete({ set, params }: IClientCarGetContext): Promise<IClientCar | { error: string }> {
-        const relation = await db.query.clientsCars.findFirst({
-            where: and(eq(clientsCars.clientId, params.clientId), eq(clientsCars.carId, params.carId)),
-        });
-
-        if (!relation) {
-            set.status = 404;
-            return httpErrors.clientsCars[404];
-        }
-
-        const [deletedRelation] = await db
-            .delete(clientsCars)
-            .where(and(eq(clientsCars.clientId, params.clientId), eq(clientsCars.carId, params.carId)))
-            .returning();
-
-        return deletedRelation;
+    async archive({ params }: IClientCarGetContext): Promise<IClientCar | null> {
+        return await ClientCarModel.archive(params.clientId, params.carId);
     },
+
+    async delete({ params }: IClientCarGetContext): Promise<IClientCar | null> {
+        return await ClientCarModel.delete(params.clientId, params.carId);
+    }
 };

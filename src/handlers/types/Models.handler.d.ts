@@ -1,20 +1,15 @@
-import { IHandler, IHandlerBody, IHandlerBodyParams, IHandlerParams } from './handlers';
+import type { IHandler, IHandlerBody, IHandlerBodyParams, IHandlerParams } from './handlers';
+import type { IModel } from '../../models';
 
-interface IModel {
-    id: number;
-    name: string;
-    brandId: number;
-}
+export type IModelCreateBody = Omit<IModel, 'id'>;
+export type IModelUpdateBody = Partial<IModelCreateBody>;
 
-type IModelCreateBody = Omit<IModel, 'id'>;
-type IModelUpdateBody = Partial<IModelCreateBody>;
+export type IModelGetParams = Pick<IModel, 'id'>;
+export type IModelGetByNameParams = Pick<IModel, 'name'>;
+export type IModelGetByBrandParams = Pick<IModel, 'brandId'>;
 
-type IModelGetParams = Pick<IModel, 'id'>;
-type IModelGetByNameParams = Pick<IModel, 'name'>;
-type IModelGetByBrandParams = Pick<IModel, 'brandId'>;
-
-interface IModelCreateContext extends IHandlerBody<IModelCreateBody> {}
-interface IModelGetContext extends IHandlerParams<IModelGetParams> {}
-interface IModelGetByNameContext extends IHandlerParams<IModelGetByNameParams> {}
-interface IModelGetByBrandContext extends IHandlerParams<IModelGetByBrandParams> {}
-interface IModelUpdateContext extends IHandlerBodyParams<IModelUpdateBody, Pick<IModel, 'id'>> {}
+export type IModelCreateContext = IHandlerBody<IModelCreateBody>;
+export type IModelGetContext = IHandlerParams<IModelGetParams>;
+export type IModelGetByNameContext = IHandlerParams<IModelGetByNameParams>;
+export type IModelGetByBrandContext = IHandlerParams<IModelGetByBrandParams>;
+export type IModelUpdateContext = IHandlerBodyParams<IModelUpdateBody, Pick<IModel, 'id'>>;

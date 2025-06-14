@@ -1,21 +1,16 @@
-import { IHandler, IHandlerBody, IHandlerBodyParams, IHandlerParams } from './handlers';
+import type { IHandler, IHandlerBody, IHandlerBodyParams, IHandlerParams } from './handlers';
+import type { IBox } from '../../models';
 
-interface IBox {
-    id: number;
-    number: string;
-    occupied: boolean;
-}
+export type IBoxCreateBody = Omit<IBox, 'id'>;
 
-type IBoxCreateBody = Omit<IBox, 'id'>;
+export type IBoxCreateContext = IHandlerBody<IBoxCreateBody>;
 
-interface IBoxCreateContext extends IHandlerBody<IBoxCreateBody> {}
+export type IBoxGetByIdParams = Pick<IBox, 'id'>;
+export type IBoxGetByNumberParams = Pick<IBox, 'number'>;
 
-type IBoxGetByIdParams = Pick<IBox, 'id'>;
-type IBoxGetByNumberParams = Pick<IBox, 'number'>;
+export type IBoxGetByIdContext = IHandlerParams<IBoxGetByIdParams>;
+export type IBoxGetByNumberContext = IHandlerParams<IBoxGetByNumberParams>;
 
-interface IBoxGetByIdContext extends IHandlerParams<IBoxGetByIdParams> {}
-interface IBoxGetByNumberContext extends IHandlerParams<IBoxGetByNumberParams> {}
+export type IBoxUpdateBody = Partial<IBoxCreateBody>;
 
-type IBoxUpdateBody = Partial<IBoxCreateBody>;
-
-interface IBoxUpdateContext extends IHandlerBodyParams<IBoxUpdateBody, Pick<IBox, 'id'>> {}
+export type IBoxUpdateContext = IHandlerBodyParams<IBoxUpdateBody, Pick<IBox, 'id'>>;

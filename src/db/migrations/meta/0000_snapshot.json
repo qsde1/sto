@@ -1,5 +1,5 @@
 {
-  "id": "6aa08a66-2c79-49eb-a9f9-4e1b46e8547a",
+  "id": "e9022360-39f1-4579-86c2-162d6d13338b",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
@@ -16,10 +16,9 @@
         },
         "created_at": {
           "name": "created_at",
-          "type": "timestamp",
+          "type": "bigint",
           "primaryKey": false,
-          "notNull": true,
-          "default": "now()"
+          "notNull": true
         },
         "client_comment": {
           "name": "client_comment",
@@ -47,13 +46,13 @@
         },
         "start_date": {
           "name": "start_date",
-          "type": "timestamp",
+          "type": "bigint",
           "primaryKey": false,
           "notNull": true
         },
         "close_date": {
           "name": "close_date",
-          "type": "timestamp",
+          "type": "bigint",
           "primaryKey": false,
           "notNull": false
         },
@@ -286,6 +285,13 @@
       },
       "compositePrimaryKeys": {},
       "uniqueConstraints": {
+        "cars_number_unique": {
+          "name": "cars_number_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "number"
+          ]
+        },
         "cars_vin_unique": {
           "name": "cars_vin_unique",
           "nullsNotDistinct": false,
@@ -318,7 +324,7 @@
           "name": "phone",
           "type": "varchar(20)",
           "primaryKey": false,
-          "notNull": false
+          "notNull": true
         },
         "email": {
           "name": "email",
@@ -361,14 +367,13 @@
         },
         "created_at": {
           "name": "created_at",
-          "type": "timestamp",
+          "type": "bigint",
           "primaryKey": false,
-          "notNull": true,
-          "default": "now()"
+          "notNull": true
         },
         "archived_at": {
           "name": "archived_at",
-          "type": "timestamp",
+          "type": "bigint",
           "primaryKey": false,
           "notNull": false
         }
@@ -436,7 +441,7 @@
           "name": "brand_id",
           "type": "integer",
           "primaryKey": false,
-          "notNull": false
+          "notNull": true
         }
       },
       "indexes": {},
@@ -479,7 +484,7 @@
         },
         "price": {
           "name": "price",
-          "type": "numeric(10, 2)",
+          "type": "double precision",
           "primaryKey": false,
           "notNull": true
         },
@@ -823,7 +828,7 @@
         },
         "price": {
           "name": "price",
-          "type": "numeric(10, 2)",
+          "type": "double precision",
           "primaryKey": false,
           "notNull": true
         },
@@ -831,7 +836,7 @@
           "name": "category_id",
           "type": "integer",
           "primaryKey": false,
-          "notNull": false
+          "notNull": true
         }
       },
       "indexes": {},
@@ -886,13 +891,13 @@
         },
         "start_date": {
           "name": "start_date",
-          "type": "timestamp",
+          "type": "bigint",
           "primaryKey": false,
           "notNull": true
         },
         "end_date": {
           "name": "end_date",
-          "type": "timestamp",
+          "type": "bigint",
           "primaryKey": false,
           "notNull": false
         },
